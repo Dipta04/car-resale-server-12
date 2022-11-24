@@ -1,0 +1,74 @@
+[
+    {
+       
+        "picture": "https://i.ibb.co/f9Sk9SP/classic-car1.jpg",
+        "name": "Green Classic Car",
+        "location": "Chittagong",
+        "resale": "50000",
+        "Original": "100000",
+        "use": "2 year",
+        "post": "11/24/2022",
+        "seller": "Rony",
+        "varified": "true"
+    },
+    {
+        
+        "picture": "https://i.ibb.co/pnCgsXJ/classic-car2.jpg",
+        "name": "Red Classic Car",
+        "location": "Chittagong",
+        "resale": "50000",
+        "Original": "100000",
+        "use": "3 year",
+        "post": "9/24/2022",
+        "seller": "Rony",
+        "varified": "true"
+    },
+    {
+        
+        "picture": "https://i.ibb.co/k2B7ngx/micro-2.png",
+        "name": "Black Micro Car",
+        "location": "Chittagong",
+        "resale": "500000",
+        "Original": "1000000",
+        "use": "2 year",
+        "post": "10/24/2022",
+        "seller": "Bijoy",
+        "varified": "true"
+    },
+    {
+       
+        "picture": "https://i.ibb.co/KNq6Dp6/micro-1.png",
+        "name": "White Micro Car",
+        "location": "Dhaka",
+        "resale": "400000",
+        "Original": "1000000",
+        "use": "3 year",
+        "post": "5/24/2022",
+        "seller": "Viru",
+        "varified": "true"
+    },
+    {
+       
+        "picture": "https://i.ibb.co/0yvmPVs/normal-cars-3.png",
+        "name": "Toyota Electrical car",
+        "location": "Chittagong",
+        "resale": "300000",
+        "Original": "700000",
+        "use": "2 year",
+        "post": "11/24/2022",
+        "seller": "Shawon",
+        "varified": "true"
+    },
+    {
+       
+        "picture": "https://i.ibb.co/CWmPhDk/normal-cars-1.png",
+        "name": "Audi Electrical Car",
+        "location": "Dhaka",
+        "resale": "500000",
+        "Original": "1000000",
+        "use": "3 year",
+        "post": "9/24/2022",
+        "seller": "Shawon",
+        "varified": "true"
+    }
+]
