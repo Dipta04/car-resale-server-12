@@ -42,6 +42,7 @@ async function run() {
       const singleCarCollection = client.db('carResale').collection('cars');
       const usersCollection = client.db('carResale').collection('users');
       const bookingsCollection = client.db('carResale').collection('bookings');
+      const addProductCollection = client.db('carResale').collection('products');
 
 
       const verifyAdmin = async (req, res, next) => {
@@ -108,6 +109,13 @@ async function run() {
          res.send(result);
       });
 
+      app.delete('/users/:id', async (req, res) => {
+         const id = req.params.id;
+         const filter = { _id: ObjectId(id) };
+         const result = await usersCollection.deleteOne(filter);
+         res.send(result);
+      })
+
 
       // car
       app.get('/carOptions', async (req, res) => {
@@ -163,6 +171,34 @@ async function run() {
          const result = await bookingsCollection.insertOne(booking);
          res.send(result);
       })
+
+      // seller add a product
+
+      app.get('/products', verifyJWT, async (req, res) => {
+         const email = req.query.email;
+         const decodedEmail = req.decoded.email;
+
+         // if (email !== decodedEmail) {
+         //    return res.status(403).send({ message: 'forbidden access' });
+         // }
+         const query = { email: email };
+         const products = await addProductCollection.find(query).toArray();
+         res.send(products);
+      })
+
+      app.post('/products', async (req, res) => {
+         const product = req.body;
+         const result = await addProductCollection.insertOne(product);
+         res.send(result);
+      })
+
+      app.delete('/products/:id', async (req, res) => {
+         const id = req.params.id;
+         const filter = { _id: ObjectId(id) };
+         const result = await addProductCollection.deleteOne(filter);
+         res.send(result);
+      })
+
 
    }
    finally {
