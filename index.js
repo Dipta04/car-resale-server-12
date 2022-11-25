@@ -19,117 +19,124 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 function verifyJWT(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-     return res.status(401).send('unauthorized access');
-  }
+   const authHeader = req.headers.authorization;
+   if (!authHeader) {
+      return res.status(401).send('unauthorized access');
+   }
 
-  const token = authHeader.split(' ')[1];
+   const token = authHeader.split(' ')[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
-     if (err) {
-        return res.status(403).send({ message: 'forbidden access' })
-     }
-     req.decoded = decoded;
-     next();
-  })
+   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+      if (err) {
+         return res.status(403).send({ message: 'forbidden access' })
+      }
+      req.decoded = decoded;
+      next();
+   })
 
 }
 
-async function run(){
-    try{
-         const carCollection =  client.db('carResale').collection('carOptions');
-         const singleCarCollection = client.db('carResale').collection('cars');
-         const usersCollection = client.db('carResale').collection('users');
-         const bookingsCollection = client.db('carResale').collection('bookings');
-
-         const verifyAdmin = async (req, res, next) => {
-          const decodedEmail = req.decoded.email;
-          const query = { email: decodedEmail };
-          const user = await usersCollection.findOne(query);
- 
-          if (user?.role !== 'admin') {
-             return res.status(403).send({ message: 'forbidden access' })
-          }
-          next();
-       }
-
-       app.get('/jwt', async (req, res) => {
-        const email = req.query.email;
-        const query = { email: email };
-        const user = await usersCollection.findOne(query);
-        if (user) {
-           const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '7d' })
-           return res.send({ accessToken: token });
-        }
-        res.status(403).send({ accessToken: '' })
-     });
+async function run() {
+   try {
+      const carCollection = client.db('carResale').collection('carOptions');
+      const singleCarCollection = client.db('carResale').collection('cars');
+      const usersCollection = client.db('carResale').collection('users');
+      const bookingsCollection = client.db('carResale').collection('bookings');
 
 
-    //  user
-     app.get('/users', async (req, res) => {
-      const query = {};
-      const users = await usersCollection.find(query).toArray();
-      res.send(users);
-   })
+      const verifyAdmin = async (req, res, next) => {
+         const decodedEmail = req.decoded.email;
+         const query = { email: decodedEmail };
+         const user = await usersCollection.findOne(query);
 
-   app.get('/users/admin/:email', async (req, res) => {
-      const email = req.params.email;
-      const query = { email }
-      const user = await usersCollection.findOne(query);
-      res.send({ isAdmin: user?.role === 'admin' });
-   })
-
-   app.post('/users', async (req, res) => {
-      const user = req.body;
-      console.log(user);
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-   });
-
-   app.put('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
-
-      const id = req.params.id;
-      const filter = { _id: ObjectId(id) }
-      const options = { upsert: true };
-      const updatedDoc = {
-         $set: {
-            role: 'admin'
+         if (user?.role !== 'admin') {
+            return res.status(403).send({ message: 'forbidden access' })
          }
+         next();
       }
-      const result = await usersCollection.updateOne(filter, updatedDoc, options);
-      res.send(result);
-   });
+
+      app.get('/jwt', async (req, res) => {
+         const email = req.query.email;
+         const query = { email: email };
+         const user = await usersCollection.findOne(query);
+         if (user) {
+            const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '7d' })
+            return res.send({ accessToken: token });
+         }
+         res.status(403).send({ accessToken: '' })
+      });
+
+      app.post('/jwt', (req, res) => {
+         const user = req.body;
+         const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '7d' })
+         res.send({ token })
+      })
 
 
-    // car
-         app.get('/carOptions',async(req,res)=>{
-            const query ={};
-            const cursor = carCollection.find(query);
-            const cars = await cursor.toArray();
-            res.send(cars);
-         })
+      //  user
+      app.get('/users', async (req, res) => {
+         const query = {};
+         const users = await usersCollection.find(query).toArray();
+         res.send(users);
+      })
 
-        app.get('/carOptions/:id',async(req,res)=>{
-          const id = req.params.id;
-          const query = {_id: ObjectId(id)};
-          const collection = await carCollection.findOne(query);
-          res.send(collection);
-        })
+      app.get('/users/admin/:email', async (req, res) => {
+         const email = req.params.email;
+         const query = { email }
+         const user = await usersCollection.findOne(query);
+         res.send({ isAdmin: user?.role === 'admin' });
+      })
 
-        app.get('/cars',async(req,res)=>{
-          const query ={};
-          const cursor = singleCarCollection.find(query);
-          const cars = await cursor.toArray();
-          res.send(cars);
-        })
+      app.post('/users', async (req, res) => {
+         const user = req.body;
+         console.log(user);
+         const result = await usersCollection.insertOne(user);
+         res.send(result);
+      });
 
-        app.get('/cars/:id',async(req,res)=>{
-          const id = req.params.id;
-          const query = {_id: ObjectId(id)};
-          const singleCar = await singleCarCollection.findOne(query);
-          res.send(singleCar);
-        })
+      app.put('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
+
+         const id = req.params.id;
+         const filter = { _id: ObjectId(id) }
+         const options = { upsert: true };
+         const updatedDoc = {
+            $set: {
+               role: 'admin'
+            }
+         }
+         const result = await usersCollection.updateOne(filter, updatedDoc, options);
+         res.send(result);
+      });
+
+
+      // car
+      app.get('/carOptions', async (req, res) => {
+         const query = {};
+         const cursor = carCollection.find(query);
+         const cars = await cursor.toArray();
+         res.send(cars);
+      })
+
+      app.get('/carOptions/:id', async (req, res) => {
+         const id = req.params.id;
+         const query = { _id: ObjectId(id) };
+         const collection = await carCollection.findOne(query);
+         res.send(collection);
+      })
+
+      app.get('/cars', async (req, res) => {
+         const query = {};
+         const cursor = singleCarCollection.find(query);
+         const cars = await cursor.toArray();
+         res.send(cars);
+      })
+
+      app.get('/cars/:id', async (req, res) => {
+         const id = req.params.id;
+         const query = { _id: ObjectId(id) };
+         const singleCar = await singleCarCollection.findOne(query);
+         res.send(singleCar);
+      })
 
       //   booking
       app.get('/bookings', verifyJWT, async (req, res) => {
@@ -151,24 +158,25 @@ async function run(){
          res.send(booking);
       })
 
-      app.post('/bookings',async(req,res)=>{
+      app.post('/bookings', async (req, res) => {
          const booking = req.body;
          const result = await bookingsCollection.insertOne(booking);
          res.send(result);
       })
-    }
-    finally{
 
-    }
+   }
+   finally {
+
+   }
 }
 run().catch(console.log);
 
 
 
 app.get('/', (req, res) => {
-  res.send('Car resale server is running')
+   res.send('Car resale server is running')
 })
 
 app.listen(port, () => {
-  console.log(`Car resale server is running on ${port}`)
+   console.log(`Car resale server is running on ${port}`)
 })
