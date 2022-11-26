@@ -44,6 +44,7 @@ async function run() {
       const bookingsCollection = client.db('carResale').collection('bookings');
       const addProductCollection = client.db('carResale').collection('products');
       const paymentsCollection = client.db('carResale').collection('payments');
+      const advertiseCollection = client.db('carResale').collection('advertise');
 
 
       const verifyAdmin = async (req, res, next) => {
@@ -240,7 +241,29 @@ async function run() {
          res.send(result);
       })
 
+      
+      // advertise
 
+      app.get('/products/:id', async (req, res) => {
+         const id = req.params.id;
+         const query = { _id: ObjectId(id) };
+         const advertise = await addProductCollection.findOne(query);
+         res.send(advertise);
+      })
+
+
+      app.put('/products/advertise/:id', async(req,res)=>{
+         const id = req.params.id;
+         const filter = { _id: ObjectId(id) }
+         const options = { upsert: true };
+         const updatedDoc = {
+            $set: {
+               advertise: 'advertise'
+            }
+         }
+         const result = await addProductCollection.updateOne(filter, updatedDoc, options);
+         res.send(result);
+      })
 
    }
    finally {
