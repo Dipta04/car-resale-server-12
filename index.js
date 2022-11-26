@@ -43,6 +43,7 @@ async function run() {
       const usersCollection = client.db('carResale').collection('users');
       const bookingsCollection = client.db('carResale').collection('bookings');
       const addProductCollection = client.db('carResale').collection('products');
+      const paymentsCollection = client.db('carResale').collection('payments');
 
 
       const verifyAdmin = async (req, res, next) => {
@@ -205,7 +206,8 @@ async function run() {
          const user = await usersCollection.findOne(query);
          res.send({ isSeller: user?.role === 'seller' });
       })
-
+       
+      // payment
       app.post('/create-payment-intent', async (req, res) => {
          const booking = req.body;
          const price = booking.price;
@@ -220,8 +222,24 @@ async function run() {
          });
          res.send({
             clientSecret: paymentIntent.client_secret,
-          });
+         });
       })
+
+      app.post('/payments', async (req, res) => {
+         const payment = req.body;
+         const result = await paymentsCollection.insertOne(payment);
+         const id = payment.bookingId
+         const filter = { _id: ObjectId(id) }
+         const updatedDoc = {
+            $set: {
+               paid: true,
+               transactionId: payment.transactionId
+            }
+         }
+         const updatedResult = await bookingsCollection.updateOne(filter, updatedDoc)
+         res.send(result);
+      })
+
 
 
    }
