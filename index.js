@@ -66,7 +66,7 @@ async function run() {
             const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '7d' })
             return res.send({ accessToken: token });
          }
-         res.status(403).send({ accessToken: '' })
+         // res.status(403).send({ accessToken: '' })
       });
 
       app.post('/jwt', (req, res) => {
@@ -281,3 +281,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
    console.log(`Car resale server is running on ${port}`)
 })
+
+module.exports=app
